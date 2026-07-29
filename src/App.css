@@ -117,7 +117,7 @@ p {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 }
 
 .provider-bar div {
@@ -147,6 +147,58 @@ p {
   font-size: 12px;
   font-style: normal;
   overflow-wrap: anywhere;
+}
+
+.model-config {
+  margin-bottom: 18px;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0;
+}
+
+.model-grid article {
+  display: grid;
+  gap: 6px;
+  min-height: 112px;
+  padding: 14px;
+  border-right: 1px solid #edf2f7;
+}
+
+.model-grid article:last-child {
+  border-right: 0;
+}
+
+.model-grid strong {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.model-grid span {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.model-grid p {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.model-grid .key-ok {
+  color: #0f766e;
+}
+
+.model-grid .key-missing {
+  color: #b45309;
 }
 
 .message {
@@ -608,6 +660,19 @@ label span {
     grid-template-columns: 1fr;
   }
 
+  .model-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .model-grid article {
+    border-right: 0;
+    border-bottom: 1px solid #edf2f7;
+  }
+
+  .model-grid article:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
   .status-strip {
     justify-content: flex-start;
     overflow-x: auto;
@@ -661,5 +726,17 @@ label span {
   .query-actions label,
   .primary {
     width: 100%;
+  }
+
+  .model-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .model-grid article:nth-last-child(-n + 2) {
+    border-bottom: 1px solid #edf2f7;
+  }
+
+  .model-grid article:last-child {
+    border-bottom: 0;
   }
 }

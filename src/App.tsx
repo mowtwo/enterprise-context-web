@@ -27,6 +27,20 @@ const COPY = {
       api: 'API',
       apiNote: 'Docker local deployment',
     },
+    modelConfig: {
+      title: 'Model Configuration',
+      subtitle: 'safe runtime status, no secrets exposed',
+      embeddingModel: 'Embedding model',
+      chatModel: 'LLM / chat model',
+      localNote: 'Local hash embedding is free and model-download-free.',
+      fallbackNote: 'Fallback chat does not call a hosted LLM.',
+      configured: 'configured',
+      missing: 'missing',
+      noKeyRequired: 'no key required',
+      deepseekKey: 'DeepSeek key',
+      openaiKey: 'OpenAI key',
+      jinaKey: 'Jina key',
+    },
     messages: {
       titleContentRequired: 'Title and content are required',
       requestFailed: 'Request failed',
@@ -135,6 +149,20 @@ For an AI full-stack demo, the most relevant signals are RAG implementation, vec
       api: 'API',
       apiNote: 'Docker 本地部署',
     },
+    modelConfig: {
+      title: '模型配置',
+      subtitle: '安全运行状态，不暴露密钥',
+      embeddingModel: 'Embedding 模型',
+      chatModel: '大模型 / Chat 模型',
+      localNote: '本地 hash embedding 免费运行，不需要下载模型。',
+      fallbackNote: 'Fallback chat 不会调用托管大模型。',
+      configured: '已配置',
+      missing: '未配置',
+      noKeyRequired: '不需要 key',
+      deepseekKey: 'DeepSeek key',
+      openaiKey: 'OpenAI key',
+      jinaKey: 'Jina key',
+    },
     messages: {
       titleContentRequired: '标题和内容不能为空',
       requestFailed: '请求失败',
@@ -233,9 +261,12 @@ type Health = {
 type RuntimeConfig = {
   api_base_url: string
   embedding_provider: string
+  embedding_model: string
   chat_provider: string
+  chat_model: string
   supported_embedding_providers: string[]
   supported_chat_providers: string[]
+  provider_key_status: Record<string, boolean>
   default_top_k: number
 }
 
@@ -491,17 +522,68 @@ function App() {
         <div>
           <strong>{copy.provider.embedding}</strong>
           <span>{config?.embedding_provider ?? 'local'}</span>
-          <em>{config?.supported_embedding_providers.join(' / ') ?? 'local / openai / jina'}</em>
+          <em>{config?.embedding_model ?? 'local-hash-384'}</em>
         </div>
         <div>
           <strong>{copy.provider.answer}</strong>
           <span>{config?.chat_provider ?? 'fallback'}</span>
-          <em>{config?.supported_chat_providers.join(' / ') ?? 'fallback / deepseek'}</em>
+          <em>{config?.chat_model ?? 'extractive-fallback'}</em>
         </div>
         <div>
           <strong>{copy.provider.api}</strong>
           <span>{config?.api_base_url ?? API_BASE_URL}</span>
           <em>{copy.provider.apiNote}</em>
+        </div>
+      </section>
+
+      <section className="model-config" aria-label={copy.modelConfig.title}>
+        <div className="panel-title">
+          <h2>{copy.modelConfig.title}</h2>
+          <span>{copy.modelConfig.subtitle}</span>
+        </div>
+        <div className="model-grid">
+          <article>
+            <strong>{copy.modelConfig.embeddingModel}</strong>
+            <span>{config?.embedding_model ?? 'local-hash-384'}</span>
+            <p>{copy.modelConfig.localNote}</p>
+          </article>
+          <article>
+            <strong>{copy.modelConfig.chatModel}</strong>
+            <span>{config?.chat_model ?? 'extractive-fallback'}</span>
+            <p>{copy.modelConfig.fallbackNote}</p>
+          </article>
+          <article>
+            <strong>{copy.modelConfig.deepseekKey}</strong>
+            <span className={config?.provider_key_status.deepseek_chat ? 'key-ok' : 'key-missing'}>
+              {config?.provider_key_status.deepseek_chat
+                ? copy.modelConfig.configured
+                : copy.modelConfig.missing}
+            </span>
+            <p>chat=deepseek</p>
+          </article>
+          <article>
+            <strong>{copy.modelConfig.openaiKey}</strong>
+            <span className={config?.provider_key_status.openai_embedding ? 'key-ok' : 'key-missing'}>
+              {config?.provider_key_status.openai_embedding
+                ? copy.modelConfig.configured
+                : copy.modelConfig.missing}
+            </span>
+            <p>provider=openai</p>
+          </article>
+          <article>
+            <strong>{copy.modelConfig.jinaKey}</strong>
+            <span className={config?.provider_key_status.jina_embedding ? 'key-ok' : 'key-missing'}>
+              {config?.provider_key_status.jina_embedding
+                ? copy.modelConfig.configured
+                : copy.modelConfig.missing}
+            </span>
+            <p>provider=jina</p>
+          </article>
+          <article>
+            <strong>Fallback</strong>
+            <span className="key-ok">{copy.modelConfig.noKeyRequired}</span>
+            <p>chat=fallback</p>
+          </article>
         </div>
       </section>
 

@@ -74,6 +74,8 @@ CHAT_PROVIDER=deepseek
 DEEPSEEK_API_KEY=your_key_here
 ```
 
+The frontend reads `/config` and displays the active embedding model, chat model, and whether provider keys are configured. The API never returns secret values.
+
 ## Debug Surface
 
 The frontend displays retrieval debug data from the `citations` array returned by `POST /query`:

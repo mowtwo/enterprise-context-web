@@ -8,6 +8,32 @@ It now includes the core demo loop: view seeded knowledge, load a `.md` or `.txt
 
 The UI defaults to English and includes a manual Chinese toggle. It does not auto-detect browser or system locale, which keeps recordings deterministic.
 
+## Model Configuration
+
+The default local demo is intentionally zero-key:
+
+- Embedding: `local-hash-384`
+- Chat / LLM: `extractive-fallback`
+- Hosted LLM calls: disabled by default
+
+To use a hosted LLM, configure the backend `.env` and restart the API:
+
+```bash
+CHAT_PROVIDER=deepseek
+DEEPSEEK_API_KEY=your_key_here
+DEEPSEEK_MODEL=deepseek-chat
+```
+
+To use stronger semantic embeddings:
+
+```bash
+EMBEDDING_PROVIDER=jina
+JINA_API_KEY=your_key_here
+JINA_EMBEDDING_MODEL=jina-embeddings-v3
+```
+
+After changing embedding providers, call `POST /demo/reset` or use the Reset button so documents are re-ingested with the active embedding model.
+
 ## Portfolio Signal
 
 This project is intentionally shaped as an interview-friendly AI full-stack demo:
