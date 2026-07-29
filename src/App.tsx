@@ -40,6 +40,16 @@ const COPY = {
       deepseekKey: 'DeepSeek key',
       openaiKey: 'OpenAI key',
       jinaKey: 'Jina key',
+      runtimeForm: 'Runtime override',
+      embeddingProvider: 'Embedding provider',
+      embeddingApiKey: 'Embedding API key',
+      chatProvider: 'Chat provider',
+      chatApiKey: 'Chat API key',
+      save: 'Save runtime config',
+      saving: 'Saving...',
+      keyPlaceholder: 'optional, kept in backend memory',
+      updated: 'Runtime config updated. Reset or re-ingest documents after changing embedding providers.',
+      updateFailed: 'Runtime config update failed',
     },
     messages: {
       titleContentRequired: 'Title and content are required',
@@ -162,6 +172,16 @@ For an AI full-stack demo, the most relevant signals are RAG implementation, vec
       deepseekKey: 'DeepSeek key',
       openaiKey: 'OpenAI key',
       jinaKey: 'Jina key',
+      runtimeForm: '运行时覆盖',
+      embeddingProvider: 'Embedding provider',
+      embeddingApiKey: 'Embedding API key',
+      chatProvider: 'Chat provider',
+      chatApiKey: 'Chat API key',
+      save: '保存运行时配置',
+      saving: '保存中...',
+      keyPlaceholder: '可选，仅保存在后端内存',
+      updated: '运行时配置已更新。切换 embedding provider 后请 Reset 或重新导入文档。',
+      updateFailed: '运行时配置更新失败',
     },
     messages: {
       titleContentRequired: '标题和内容不能为空',
@@ -270,6 +290,15 @@ type RuntimeConfig = {
   default_top_k: number
 }
 
+type RuntimeConfigUpdate = {
+  embedding_provider: string
+  embedding_model: string
+  embedding_api_key?: string
+  chat_provider: string
+  chat_model: string
+  chat_api_key?: string
+}
+
 type DocumentSummary = {
   id: string
   title: string
@@ -331,8 +360,15 @@ function App() {
   const [ingestContent, setIngestContent] = useState<string>(COPY.en.defaultIngestContent)
   const [ingestSourceUri, setIngestSourceUri] = useState('manual://recording-memo')
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null)
+  const [embeddingProvider, setEmbeddingProvider] = useState('local')
+  const [embeddingModel, setEmbeddingModel] = useState('local-hash-384')
+  const [embeddingApiKey, setEmbeddingApiKey] = useState('')
+  const [chatProvider, setChatProvider] = useState('fallback')
+  const [chatModel, setChatModel] = useState('extractive-fallback')
+  const [chatApiKey, setChatApiKey] = useState('')
   const [loading, setLoading] = useState(false)
   const [mutating, setMutating] = useState(false)
+  const [configSaving, setConfigSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -355,6 +391,10 @@ function App() {
     ])
     setHealth(nextHealth)
     setConfig(nextConfig)
+    setEmbeddingProvider(nextConfig.embedding_provider)
+    setEmbeddingModel(nextConfig.embedding_model)
+    setChatProvider(nextConfig.chat_provider)
+    setChatModel(nextConfig.chat_model)
     setDocuments(nextDocuments)
     setAuditLogs(nextLogs)
   }
@@ -467,6 +507,42 @@ function App() {
       setError(err instanceof Error ? err.message : copy.messages.resetFailed)
     } finally {
       setMutating(false)
+    }
+  }
+
+  async function saveRuntimeConfig() {
+    setConfigSaving(true)
+    setError(null)
+    setNotice(null)
+    const payload: RuntimeConfigUpdate = {
+      embedding_provider: embeddingProvider,
+      embedding_model: embeddingModel,
+      chat_provider: chatProvider,
+      chat_model: chatModel,
+    }
+    if (embeddingApiKey.trim()) {
+      payload.embedding_api_key = embeddingApiKey.trim()
+    }
+    if (chatApiKey.trim()) {
+      payload.chat_api_key = chatApiKey.trim()
+    }
+    try {
+      const nextConfig = await fetchJson<RuntimeConfig>('/config', {
+        method: 'PATCH',
+        body: JSON.stringify(payload),
+      })
+      setConfig(nextConfig)
+      setEmbeddingProvider(nextConfig.embedding_provider)
+      setEmbeddingModel(nextConfig.embedding_model)
+      setChatProvider(nextConfig.chat_provider)
+      setChatModel(nextConfig.chat_model)
+      setEmbeddingApiKey('')
+      setChatApiKey('')
+      setNotice(copy.modelConfig.updated)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : copy.modelConfig.updateFailed)
+    } finally {
+      setConfigSaving(false)
     }
   }
 
@@ -584,6 +660,74 @@ function App() {
             <span className="key-ok">{copy.modelConfig.noKeyRequired}</span>
             <p>chat=fallback</p>
           </article>
+        </div>
+        <div className="runtime-form">
+          <div className="runtime-title">
+            <h3>{copy.modelConfig.runtimeForm}</h3>
+            <span>{copy.modelConfig.subtitle}</span>
+          </div>
+          <div className="runtime-fields">
+            <label>
+              <span>{copy.modelConfig.embeddingProvider}</span>
+              <select
+                value={embeddingProvider}
+                onChange={(event) => {
+                  const provider = event.target.value
+                  setEmbeddingProvider(provider)
+                  if (provider === 'local') setEmbeddingModel('local-hash-384')
+                  if (provider === 'openai') setEmbeddingModel('text-embedding-3-small')
+                  if (provider === 'jina') setEmbeddingModel('jina-embeddings-v3')
+                }}
+              >
+                <option value="local">local</option>
+                <option value="openai">openai</option>
+                <option value="jina">jina</option>
+              </select>
+            </label>
+            <label>
+              <span>{copy.modelConfig.embeddingModel}</span>
+              <input value={embeddingModel} onChange={(event) => setEmbeddingModel(event.target.value)} />
+            </label>
+            <label>
+              <span>{copy.modelConfig.embeddingApiKey}</span>
+              <input
+                type="password"
+                value={embeddingApiKey}
+                placeholder={copy.modelConfig.keyPlaceholder}
+                onChange={(event) => setEmbeddingApiKey(event.target.value)}
+              />
+            </label>
+            <label>
+              <span>{copy.modelConfig.chatProvider}</span>
+              <select
+                value={chatProvider}
+                onChange={(event) => {
+                  const provider = event.target.value
+                  setChatProvider(provider)
+                  setChatModel(provider === 'deepseek' ? 'deepseek-chat' : 'extractive-fallback')
+                }}
+              >
+                <option value="fallback">fallback</option>
+                <option value="deepseek">deepseek</option>
+              </select>
+            </label>
+            <label>
+              <span>{copy.modelConfig.chatModel}</span>
+              <input value={chatModel} onChange={(event) => setChatModel(event.target.value)} />
+            </label>
+            <label>
+              <span>{copy.modelConfig.chatApiKey}</span>
+              <input
+                type="password"
+                value={chatApiKey}
+                placeholder={copy.modelConfig.keyPlaceholder}
+                onChange={(event) => setChatApiKey(event.target.value)}
+              />
+            </label>
+          </div>
+          <button type="button" className="primary runtime-save" onClick={saveRuntimeConfig} disabled={configSaving}>
+            {configSaving ? copy.modelConfig.saving : copy.modelConfig.save}
+          </button>
         </div>
       </section>
 

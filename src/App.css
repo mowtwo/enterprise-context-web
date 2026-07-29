@@ -201,6 +201,40 @@ p {
   color: #b45309;
 }
 
+.runtime-form {
+  border-top: 1px solid #edf2f7;
+  padding: 14px;
+}
+
+.runtime-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.runtime-title h3 {
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.runtime-title span {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.runtime-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.runtime-save {
+  width: 190px;
+  margin-top: 12px;
+}
+
 .message {
   margin-bottom: 18px;
   padding: 10px 12px;
@@ -664,6 +698,10 @@ label span {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .runtime-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .model-grid article {
     border-right: 0;
     border-bottom: 1px solid #edf2f7;
@@ -730,6 +768,14 @@ label span {
 
   .model-grid {
     grid-template-columns: 1fr;
+  }
+
+  .runtime-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .runtime-save {
+    width: 100%;
   }
 
   .model-grid article:nth-last-child(-n + 2) {

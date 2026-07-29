@@ -16,6 +16,8 @@ The default local demo is intentionally zero-key:
 - Chat / LLM: `extractive-fallback`
 - Hosted LLM calls: disabled by default
 
+You can change runtime provider settings directly in the web UI. Values are stored in backend memory for the current local session only; API keys are never returned by `/config` and are not written to `.env`.
+
 To use a hosted LLM, configure the backend `.env` and restart the API:
 
 ```bash
