@@ -2,7 +2,16 @@
 
 Frontend demo for the Enterprise Context Layer backend.
 
-It now includes the core demo loop: view seeded knowledge, ingest a manual document, ask cited questions, inspect audit logs, delete manual documents, and reset demo data.
+It now includes the core demo loop: view seeded knowledge, load a `.md` or `.txt` file, ingest a manual document, ask cited questions, inspect retrieval debug details, review audit logs, delete manual documents, and reset demo data.
+
+## Portfolio Signal
+
+This project is intentionally shaped as an interview-friendly AI full-stack demo:
+
+- Frontend owns the complete workflow instead of showing a bare chat box.
+- Backend exposes source-grounded RAG APIs with citations and audit logs.
+- Local deployment keeps the recording cheap and repeatable.
+- Provider seams make it easy to swap local, Jina, OpenAI, and DeepSeek paths.
 
 Backend repo:
 

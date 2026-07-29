@@ -6,6 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8010
 const EXAMPLE_QUESTIONS = [
   'How should a remote team use approved AI tools?',
   'What makes this demo cheap enough to run locally?',
+  'What signals matter for a China-friendly AI full-stack candidate?',
   '客户为什么关心 citations 和 audit logs？',
 ]
 
@@ -87,6 +88,8 @@ function App() {
   const [ingestTitle, setIngestTitle] = useState('Chinese-friendly Remote Hiring Memo')
   const [ingestLanguage, setIngestLanguage] = useState('en')
   const [ingestContent, setIngestContent] = useState(DEFAULT_INGEST_CONTENT)
+  const [ingestSourceUri, setIngestSourceUri] = useState('manual://recording-memo')
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [mutating, setMutating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -120,9 +123,10 @@ function App() {
     setError(null)
     setNotice(null)
     try {
+      const safeTopK = Math.min(Math.max(topK, 1), 12)
       const response = await fetchJson<QueryResponse>('/query', {
         method: 'POST',
-        body: JSON.stringify({ query: nextQuestion, top_k: topK }),
+        body: JSON.stringify({ query: nextQuestion, top_k: safeTopK }),
       })
       setResult(response)
       await refresh()
@@ -149,7 +153,7 @@ function App() {
           content: ingestContent,
           language: ingestLanguage,
           source_type: 'manual',
-          source_uri: 'manual://recording-memo',
+          source_uri: ingestSourceUri,
         }),
       })
       setNotice('Document ingested')
@@ -159,6 +163,22 @@ function App() {
     } finally {
       setMutating(false)
     }
+  }
+
+  async function loadFile(file: File | undefined) {
+    if (!file) return
+    const supported = file.name.endsWith('.md') || file.name.endsWith('.txt')
+    if (!supported) {
+      setError('Only .md and .txt files are supported for this demo')
+      return
+    }
+    const content = await file.text()
+    setSelectedFileName(file.name)
+    setIngestTitle(file.name.replace(/\.(md|txt)$/i, '').replace(/[-_]/g, ' '))
+    setIngestContent(content)
+    setIngestSourceUri(`file://${file.name}`)
+    setNotice('File loaded into ingest form')
+    setError(null)
   }
 
   async function deleteDocument(documentId: string) {
@@ -230,6 +250,24 @@ function App() {
         </div>
       </section>
 
+      <section className="provider-bar" aria-label="Provider configuration">
+        <div>
+          <strong>Embedding</strong>
+          <span>{config?.embedding_provider ?? 'local'}</span>
+          <em>{config?.supported_embedding_providers.join(' / ') ?? 'local / openai / jina'}</em>
+        </div>
+        <div>
+          <strong>Answer</strong>
+          <span>{config?.chat_provider ?? 'fallback'}</span>
+          <em>{config?.supported_chat_providers.join(' / ') ?? 'fallback / deepseek'}</em>
+        </div>
+        <div>
+          <strong>API</strong>
+          <span>{config?.api_base_url ?? API_BASE_URL}</span>
+          <em>Docker local deployment</em>
+        </div>
+      </section>
+
       {(error || notice) && (
         <section className={error ? 'message error' : 'message notice'}>{error ?? notice}</section>
       )}
@@ -276,9 +314,19 @@ function App() {
           <section className="panel ingest-panel">
             <div className="panel-title">
               <h2>Ingest Document</h2>
-              <span>{config?.api_base_url ?? API_BASE_URL}</span>
+              <span>{selectedFileName ?? 'textarea or .md/.txt file'}</span>
             </div>
             <div className="form-grid">
+              <label className="full file-loader">
+                <span>Load File</span>
+                <input
+                  type="file"
+                  accept=".md,.txt,text/markdown,text/plain"
+                  onChange={(event) => loadFile(event.target.files?.[0]).catch((err) => {
+                    setError(err instanceof Error ? err.message : 'File load failed')
+                  })}
+                />
+              </label>
               <label>
                 <span>Title</span>
                 <input value={ingestTitle} onChange={(event) => setIngestTitle(event.target.value)} />
@@ -293,6 +341,13 @@ function App() {
                   <option value="zh">Chinese</option>
                   <option value="mixed">Mixed</option>
                 </select>
+              </label>
+              <label className="full">
+                <span>Source URI</span>
+                <input
+                  value={ingestSourceUri}
+                  onChange={(event) => setIngestSourceUri(event.target.value)}
+                />
               </label>
               <label className="full">
                 <span>Content</span>
@@ -367,6 +422,22 @@ function App() {
                     <p>{citation.excerpt}</p>
                   </article>
                 ))}
+              </div>
+              <div className="debug-panel">
+                <div className="debug-title">
+                  <h3>Retrieval Debug</h3>
+                  <span>chunk source and score</span>
+                </div>
+                <div className="debug-table">
+                  {result.citations.map((citation, index) => (
+                    <article key={`${citation.chunk_id}-debug`}>
+                      <span>#{index + 1}</span>
+                      <strong>{citation.document_title}</strong>
+                      <code>{citation.chunk_id.slice(0, 8)}</code>
+                      <em>{citation.score.toFixed(3)}</em>
+                    </article>
+                  ))}
+                </div>
               </div>
             </div>
           ) : null}

@@ -13,6 +13,7 @@ Frontend:
 - TypeScript
 - Vite
 - Plain CSS for a compact product demo surface
+- Browser-side `.md` and `.txt` file reading before JSON ingestion
 
 Backend:
 
@@ -73,9 +74,20 @@ CHAT_PROVIDER=deepseek
 DEEPSEEK_API_KEY=your_key_here
 ```
 
+## Debug Surface
+
+The frontend displays retrieval debug data from the `citations` array returned by `POST /query`:
+
+- document title
+- chunk id prefix
+- retrieval score
+- citation excerpt
+
+This keeps the demo honest during interviews: the answer is visibly connected to retrieved context.
+
 ## Next Engineering Steps
 
-1. Add drag-and-drop file upload and background ingestion status.
+1. Add drag-and-drop upload and background ingestion status.
 2. Add provider quality comparison.
 3. Add answer feedback and retrieval debugging.
 4. Add auth boundary and workspace-aware document filtering.
