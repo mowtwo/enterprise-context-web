@@ -16,8 +16,31 @@ This project is intentionally shaped as an interview-friendly AI full-stack demo
 Backend repo:
 
 - `/Users/chenwencheng/codebase/ai-app/enterprise-context-api`
+- GitHub API repo: https://github.com/mowtwo/enterprise-context-api
 - Local API: `http://localhost:8010`
 - Frontend env: `VITE_API_BASE_URL=http://localhost:8010`
+
+## Architecture
+
+```mermaid
+flowchart LR
+  A["React demo workspace"] --> B["FastAPI RAG API"]
+  B --> C["PostgreSQL + pgvector"]
+  B --> D["Embedding provider"]
+  B --> E["Chat provider"]
+  D --> F["local hash / Jina / OpenAI"]
+  E --> G["fallback / DeepSeek"]
+  C --> H["Citations + audit logs"]
+  H --> A
+```
+
+## Demo Checklist
+
+- Load a `.md` or `.txt` memo into the ingest form.
+- Ingest the document and confirm it appears under Knowledge Sources.
+- Ask a question and inspect answer, citations, latency, cost, and Retrieval Debug.
+- Review the Audit Trail.
+- Delete manual documents or Reset to return to a clean recording state.
 
 ## Run
 
@@ -40,3 +63,4 @@ Docs:
 - `docs/product.md`
 - `docs/development.md`
 - `docs/recording-script.md`
+- `docs/testing-checklist.md`

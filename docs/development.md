@@ -85,6 +85,11 @@ The frontend displays retrieval debug data from the `citations` array returned b
 
 This keeps the demo honest during interviews: the answer is visibly connected to retrieved context.
 
+## Repository Links
+
+- Frontend GitHub: `https://github.com/mowtwo/enterprise-context-web`
+- Backend GitHub: `https://github.com/mowtwo/enterprise-context-api`
+
 ## Next Engineering Steps
 
 1. Add drag-and-drop upload and background ingestion status.

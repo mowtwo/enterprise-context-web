@@ -16,6 +16,21 @@ AI startup teams hiring from China should prefer async written collaboration, cl
 
 For an AI full-stack demo, the most relevant signals are RAG implementation, vector retrieval, provider abstraction, audit logs, Docker-based local deployment, and a frontend that exposes the product workflow clearly.`
 
+const ARCHITECTURE_STEPS = [
+  'React workspace loads source documents and user questions',
+  'FastAPI validates requests and coordinates ingestion or retrieval',
+  'PostgreSQL + pgvector stores document chunks and vector search state',
+  'Embedding provider can run locally or switch to OpenAI/Jina',
+  'Chat provider can use fallback extraction or DeepSeek answer generation',
+  'Audit logs preserve query, citations, latency, and estimated cost',
+]
+
+const TEST_NOTES = [
+  'Docker backend smoke: /health, /config, /documents, /query',
+  'Frontend quality gate: oxlint, TypeScript build, Vite production build',
+  'Demo reset keeps recordings repeatable after manual document tests',
+]
+
 type Health = {
   status: string
   embedding_provider: string
@@ -459,6 +474,32 @@ function App() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="info-grid">
+        <article className="panel info-panel">
+          <div className="panel-title">
+            <h2>Architecture</h2>
+            <span>local-first RAG path</span>
+          </div>
+          <ol>
+            {ARCHITECTURE_STEPS.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
+        </article>
+
+        <article className="panel info-panel">
+          <div className="panel-title">
+            <h2>Testing Notes</h2>
+            <span>recording-ready checks</span>
+          </div>
+          <ul>
+            {TEST_NOTES.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </article>
       </section>
     </main>
   )
