@@ -54,8 +54,10 @@ VITE_API_BASE_URL=http://localhost:8010
 The backend exposes:
 
 - `GET /health`
+- `GET /config`
 - `GET /documents`
 - `POST /documents/ingest`
+- `DELETE /documents/{id}`
 - `POST /query`
 - `GET /audit-logs`
 - `POST /demo/reset`
@@ -73,7 +75,7 @@ DEEPSEEK_API_KEY=your_key_here
 
 ## Next Engineering Steps
 
-1. Add file upload and background ingestion status.
+1. Add drag-and-drop file upload and background ingestion status.
 2. Add provider quality comparison.
 3. Add answer feedback and retrieval debugging.
 4. Add auth boundary and workspace-aware document filtering.

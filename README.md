@@ -2,6 +2,8 @@
 
 Frontend demo for the Enterprise Context Layer backend.
 
+It now includes the core demo loop: view seeded knowledge, ingest a manual document, ask cited questions, inspect audit logs, delete manual documents, and reset demo data.
+
 Backend repo:
 
 - `/Users/chenwencheng/codebase/ai-app/enterprise-context-api`
