@@ -12,6 +12,12 @@
   padding: 16px 0 28px;
 }
 
+.masthead-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .eyebrow {
   margin: 0 0 8px;
   color: #0f766e;
@@ -47,6 +53,14 @@ p {
   background: #ffffff;
   color: #475569;
   font-size: 13px;
+}
+
+.language-toggle {
+  min-width: 58px;
+  border-color: #0f766e;
+  background: #ecfdf5;
+  color: #0f766e;
+  font-weight: 800;
 }
 
 .status-strip span:not(.status-dot) {
@@ -599,6 +613,10 @@ label span {
     overflow-x: auto;
   }
 
+  .masthead-actions {
+    justify-content: space-between;
+  }
+
   .audit-table article {
     grid-template-columns: 82px minmax(0, 1fr) 64px;
   }
@@ -620,6 +638,11 @@ label span {
   .workspace {
     width: min(100vw - 20px, 1240px);
     padding: 20px 0;
+  }
+
+  .masthead-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .form-grid,

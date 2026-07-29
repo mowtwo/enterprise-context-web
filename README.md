@@ -6,6 +6,8 @@ It now includes the core demo loop: view seeded knowledge, load a `.md` or `.txt
 
 ![Enterprise Context Layer dashboard](docs/assets/dashboard.png)
 
+The UI defaults to English and includes a manual Chinese toggle. It does not auto-detect browser or system locale, which keeps recordings deterministic.
+
 ## Portfolio Signal
 
 This project is intentionally shaped as an interview-friendly AI full-stack demo:
@@ -43,6 +45,7 @@ flowchart LR
 - Ask a question and inspect answer, citations, latency, cost, and Retrieval Debug.
 - Review the Audit Trail.
 - Delete manual documents or Reset to return to a clean recording state.
+- Toggle Chinese and confirm the same workflow remains readable for China-friendly outreach.
 
 ## Run
 

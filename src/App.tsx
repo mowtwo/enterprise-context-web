@@ -3,33 +3,226 @@ import './App.css'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8010'
 
-const EXAMPLE_QUESTIONS = [
-  'How should a remote team use approved AI tools?',
-  'What makes this demo cheap enough to run locally?',
-  'What signals matter for a China-friendly AI full-stack candidate?',
-  '客户为什么关心 citations 和 audit logs？',
-]
+type Locale = 'en' | 'zh'
 
-const DEFAULT_INGEST_CONTENT = `Chinese-friendly remote hiring memo
+const COPY = {
+  en: {
+    languageToggle: '中文',
+    languageLabel: 'Switch to Chinese',
+    eyebrow: 'Enterprise Context Layer',
+    headline: 'Source-grounded AI answers for internal knowledge.',
+    checking: 'checking',
+    embeddingFallback: 'embedding',
+    chatFallback: 'chat',
+    metrics: {
+      documents: 'Documents',
+      chunks: 'Chunks',
+      manual: 'Manual',
+      latency: 'Latency',
+    },
+    provider: {
+      label: 'Provider configuration',
+      embedding: 'Embedding',
+      answer: 'Answer',
+      api: 'API',
+      apiNote: 'Docker local deployment',
+    },
+    messages: {
+      titleContentRequired: 'Title and content are required',
+      requestFailed: 'Request failed',
+      ingestFailed: 'Ingest failed',
+      ingested: 'Document ingested',
+      unsupportedFile: 'Only .md and .txt files are supported for this demo',
+      fileLoaded: 'File loaded into ingest form',
+      fileLoadFailed: 'File load failed',
+      deleted: 'Document deleted',
+      deleteFailed: 'Delete failed',
+      reset: 'Demo data reset',
+      resetFailed: 'Reset failed',
+      backendUnavailable: 'Backend unavailable',
+    },
+    documents: {
+      title: 'Knowledge Sources',
+      refresh: 'Refresh',
+      reset: 'Reset',
+      delete: 'Delete',
+      deleteLabel: 'Delete',
+    },
+    ingest: {
+      title: 'Ingest Document',
+      sourceHint: 'textarea or .md/.txt file',
+      loadFile: 'Load File',
+      docTitle: 'Title',
+      language: 'Language',
+      sourceUri: 'Source URI',
+      content: 'Content',
+      ingest: 'Ingest',
+      working: 'Working...',
+      options: {
+        en: 'English',
+        zh: 'Chinese',
+        mixed: 'Mixed',
+      },
+    },
+    query: {
+      title: 'Ask With Citations',
+      questionLabel: 'Question',
+      topK: 'Top K',
+      run: 'Run Query',
+      querying: 'Querying...',
+      citations: 'citations',
+    },
+    debug: {
+      title: 'Retrieval Debug',
+      subtitle: 'chunk source and score',
+    },
+    audit: {
+      title: 'Audit Trail',
+      recent: 'recent records',
+    },
+    architecture: {
+      title: 'Architecture',
+      subtitle: 'local-first RAG path',
+      steps: [
+        'React workspace loads source documents and user questions',
+        'FastAPI validates requests and coordinates ingestion or retrieval',
+        'PostgreSQL + pgvector stores document chunks and vector search state',
+        'Embedding provider can run locally or switch to OpenAI/Jina',
+        'Chat provider can use fallback extraction or DeepSeek answer generation',
+        'Audit logs preserve query, citations, latency, and estimated cost',
+      ],
+    },
+    testing: {
+      title: 'Testing Notes',
+      subtitle: 'recording-ready checks',
+      notes: [
+        'Docker backend smoke: /health, /config, /documents, /query',
+        'Frontend quality gate: oxlint, TypeScript build, Vite production build',
+        'Demo reset keeps recordings repeatable after manual document tests',
+      ],
+    },
+    exampleQuestions: [
+      'How should a remote team use approved AI tools?',
+      'What makes this demo cheap enough to run locally?',
+      'What signals matter for a China-friendly AI full-stack candidate?',
+      '客户为什么关心 citations 和 audit logs？',
+    ],
+    defaultIngestTitle: 'Chinese-friendly Remote Hiring Memo',
+    defaultIngestContent: `Chinese-friendly remote hiring memo
 
 AI startup teams hiring from China should prefer async written collaboration, clear issue ownership, and contract-friendly workflows. A strong candidate can communicate in English text, ship frontend and backend slices, and document trade-offs without waiting for synchronous meetings.
 
-For an AI full-stack demo, the most relevant signals are RAG implementation, vector retrieval, provider abstraction, audit logs, Docker-based local deployment, and a frontend that exposes the product workflow clearly.`
+For an AI full-stack demo, the most relevant signals are RAG implementation, vector retrieval, provider abstraction, audit logs, Docker-based local deployment, and a frontend that exposes the product workflow clearly.`,
+  },
+  zh: {
+    languageToggle: 'EN',
+    languageLabel: '切换到英文',
+    eyebrow: '企业上下文层',
+    headline: '面向内部知识库的可追溯 AI 回答。',
+    checking: '检查中',
+    embeddingFallback: '向量模型',
+    chatFallback: '回答模型',
+    metrics: {
+      documents: '文档',
+      chunks: '切片',
+      manual: '手动导入',
+      latency: '耗时',
+    },
+    provider: {
+      label: 'Provider 配置',
+      embedding: 'Embedding',
+      answer: 'Answer',
+      api: 'API',
+      apiNote: 'Docker 本地部署',
+    },
+    messages: {
+      titleContentRequired: '标题和内容不能为空',
+      requestFailed: '请求失败',
+      ingestFailed: '导入失败',
+      ingested: '文档已导入',
+      unsupportedFile: '这个 demo 只支持 .md 和 .txt 文件',
+      fileLoaded: '文件已加载到导入表单',
+      fileLoadFailed: '文件读取失败',
+      deleted: '文档已删除',
+      deleteFailed: '删除失败',
+      reset: 'Demo 数据已重置',
+      resetFailed: '重置失败',
+      backendUnavailable: '后端不可用',
+    },
+    documents: {
+      title: '知识来源',
+      refresh: '刷新',
+      reset: '重置',
+      delete: '删除',
+      deleteLabel: '删除',
+    },
+    ingest: {
+      title: '导入文档',
+      sourceHint: '文本框或 .md/.txt 文件',
+      loadFile: '加载文件',
+      docTitle: '标题',
+      language: '语言',
+      sourceUri: '来源 URI',
+      content: '内容',
+      ingest: '导入',
+      working: '处理中...',
+      options: {
+        en: '英文',
+        zh: '中文',
+        mixed: '中英混合',
+      },
+    },
+    query: {
+      title: '带引用问答',
+      questionLabel: '问题',
+      topK: 'Top K',
+      run: '开始查询',
+      querying: '查询中...',
+      citations: '条引用',
+    },
+    debug: {
+      title: '检索调试',
+      subtitle: '切片来源和分数',
+    },
+    audit: {
+      title: '审计日志',
+      recent: '条最近记录',
+    },
+    architecture: {
+      title: '架构',
+      subtitle: '本地优先 RAG 路径',
+      steps: [
+        'React 工作台加载来源文档和用户问题',
+        'FastAPI 校验请求并协调导入或检索流程',
+        'PostgreSQL + pgvector 存储文档切片和向量检索状态',
+        'Embedding provider 可以本地运行，也可以切换到 OpenAI/Jina',
+        'Chat provider 可以使用 fallback 摘录，或切换 DeepSeek 生成答案',
+        '审计日志记录 query、引用、耗时和成本估算',
+      ],
+    },
+    testing: {
+      title: '测试说明',
+      subtitle: '录屏前检查项',
+      notes: [
+        'Docker 后端冒烟测试：/health、/config、/documents、/query',
+        '前端质量门：oxlint、TypeScript build、Vite production build',
+        'Demo reset 让手动导入测试后的录屏可以重复执行',
+      ],
+    },
+    exampleQuestions: [
+      '远程团队应该如何使用经过批准的 AI 工具？',
+      '这个 demo 为什么可以低成本本地运行？',
+      '中国友好的 AI 全栈候选人需要哪些信号？',
+      '客户为什么关心 citations 和 audit logs？',
+    ],
+    defaultIngestTitle: '中国友好的远程招聘备忘录',
+    defaultIngestContent: `中国友好的远程招聘备忘录
 
-const ARCHITECTURE_STEPS = [
-  'React workspace loads source documents and user questions',
-  'FastAPI validates requests and coordinates ingestion or retrieval',
-  'PostgreSQL + pgvector stores document chunks and vector search state',
-  'Embedding provider can run locally or switch to OpenAI/Jina',
-  'Chat provider can use fallback extraction or DeepSeek answer generation',
-  'Audit logs preserve query, citations, latency, and estimated cost',
-]
+招聘中国远程工程师的 AI 创业团队，应该重点考察异步文字沟通、清晰的问题 ownership，以及跨前端、后端和 AI provider 边界交付完整切片的能力。
 
-const TEST_NOTES = [
-  'Docker backend smoke: /health, /config, /documents, /query',
-  'Frontend quality gate: oxlint, TypeScript build, Vite production build',
-  'Demo reset keeps recordings repeatable after manual document tests',
-]
+对 AI 全栈 demo 来说，最有价值的信号包括 RAG 实现、向量检索、provider 抽象、审计日志、Docker 本地部署，以及能把产品工作流清晰展示出来的前端。`,
+  },
+} as const
 
 type Health = {
   status: string
@@ -93,16 +286,18 @@ async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 function App() {
+  const [locale, setLocale] = useState<Locale>('en')
+  const copy = COPY[locale]
   const [health, setHealth] = useState<Health | null>(null)
   const [config, setConfig] = useState<RuntimeConfig | null>(null)
   const [documents, setDocuments] = useState<DocumentSummary[]>([])
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
-  const [question, setQuestion] = useState(EXAMPLE_QUESTIONS[0])
+  const [question, setQuestion] = useState<string>(COPY.en.exampleQuestions[0])
   const [topK, setTopK] = useState(4)
   const [result, setResult] = useState<QueryResponse | null>(null)
-  const [ingestTitle, setIngestTitle] = useState('Chinese-friendly Remote Hiring Memo')
+  const [ingestTitle, setIngestTitle] = useState<string>(COPY.en.defaultIngestTitle)
   const [ingestLanguage, setIngestLanguage] = useState('en')
-  const [ingestContent, setIngestContent] = useState(DEFAULT_INGEST_CONTENT)
+  const [ingestContent, setIngestContent] = useState<string>(COPY.en.defaultIngestContent)
   const [ingestSourceUri, setIngestSourceUri] = useState('manual://recording-memo')
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -133,6 +328,23 @@ function App() {
     setAuditLogs(nextLogs)
   }
 
+  function toggleLocale() {
+    const nextLocale: Locale = locale === 'en' ? 'zh' : 'en'
+    const oldCopy = COPY[locale]
+    const nextCopy = COPY[nextLocale]
+    const currentQuestionIndex = oldCopy.exampleQuestions.findIndex((example) => example === question)
+    if (currentQuestionIndex >= 0) {
+      setQuestion(nextCopy.exampleQuestions[currentQuestionIndex])
+    }
+    if (ingestTitle === oldCopy.defaultIngestTitle) {
+      setIngestTitle(nextCopy.defaultIngestTitle)
+    }
+    if (ingestContent === oldCopy.defaultIngestContent) {
+      setIngestContent(nextCopy.defaultIngestContent)
+    }
+    setLocale(nextLocale)
+  }
+
   async function askQuestion(nextQuestion = question) {
     setLoading(true)
     setError(null)
@@ -146,7 +358,7 @@ function App() {
       setResult(response)
       await refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Request failed')
+      setError(err instanceof Error ? err.message : copy.messages.requestFailed)
     } finally {
       setLoading(false)
     }
@@ -154,7 +366,7 @@ function App() {
 
   async function ingestDocument() {
     if (!ingestTitle.trim() || !ingestContent.trim()) {
-      setError('Title and content are required')
+      setError(copy.messages.titleContentRequired)
       return
     }
     setMutating(true)
@@ -171,10 +383,10 @@ function App() {
           source_uri: ingestSourceUri,
         }),
       })
-      setNotice('Document ingested')
+      setNotice(copy.messages.ingested)
       await refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ingest failed')
+      setError(err instanceof Error ? err.message : copy.messages.ingestFailed)
     } finally {
       setMutating(false)
     }
@@ -184,7 +396,7 @@ function App() {
     if (!file) return
     const supported = file.name.endsWith('.md') || file.name.endsWith('.txt')
     if (!supported) {
-      setError('Only .md and .txt files are supported for this demo')
+      setError(copy.messages.unsupportedFile)
       return
     }
     const content = await file.text()
@@ -192,7 +404,7 @@ function App() {
     setIngestTitle(file.name.replace(/\.(md|txt)$/i, '').replace(/[-_]/g, ' '))
     setIngestContent(content)
     setIngestSourceUri(`file://${file.name}`)
-    setNotice('File loaded into ingest form')
+    setNotice(copy.messages.fileLoaded)
     setError(null)
   }
 
@@ -202,10 +414,10 @@ function App() {
     setNotice(null)
     try {
       await fetchJson(`/documents/${documentId}`, { method: 'DELETE' })
-      setNotice('Document deleted')
+      setNotice(copy.messages.deleted)
       await refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Delete failed')
+      setError(err instanceof Error ? err.message : copy.messages.deleteFailed)
     } finally {
       setMutating(false)
     }
@@ -218,68 +430,78 @@ function App() {
     try {
       await fetchJson('/demo/reset', { method: 'POST' })
       setResult(null)
-      setNotice('Demo data reset')
+      setNotice(copy.messages.reset)
       await refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Reset failed')
+      setError(err instanceof Error ? err.message : copy.messages.resetFailed)
     } finally {
       setMutating(false)
     }
   }
 
   useEffect(() => {
-    refresh().catch((err) => setError(err instanceof Error ? err.message : 'Backend unavailable'))
+    refresh().catch((err) => setError(err instanceof Error ? err.message : COPY.en.messages.backendUnavailable))
   }, [])
 
   return (
-    <main className="workspace">
+    <main className="workspace" lang={locale}>
       <section className="masthead">
         <div>
-          <p className="eyebrow">Enterprise Context Layer</p>
-          <h1>Source-grounded AI answers for internal knowledge.</h1>
+          <p className="eyebrow">{copy.eyebrow}</p>
+          <h1>{copy.headline}</h1>
         </div>
-        <div className="status-strip" aria-label="System status">
-          <span className={health?.status === 'ok' ? 'status-dot ok' : 'status-dot'} />
-          <span>{health?.status ?? 'checking'}</span>
-          <span>{config?.embedding_provider ?? health?.embedding_provider ?? 'embedding'}</span>
-          <span>{config?.chat_provider ?? health?.chat_provider ?? 'chat'}</span>
+        <div className="masthead-actions">
+          <button
+            type="button"
+            className="language-toggle"
+            aria-label={copy.languageLabel}
+            onClick={toggleLocale}
+          >
+            {copy.languageToggle}
+          </button>
+          <div className="status-strip" aria-label="System status">
+            <span className={health?.status === 'ok' ? 'status-dot ok' : 'status-dot'} />
+            <span>{health?.status ?? copy.checking}</span>
+            <span>{config?.embedding_provider ?? health?.embedding_provider ?? copy.embeddingFallback}</span>
+            <span>{config?.chat_provider ?? health?.chat_provider ?? copy.chatFallback}</span>
+          </div>
         </div>
       </section>
 
       <section className="metrics" aria-label="Demo metrics">
         <div>
           <strong>{documents.length}</strong>
-          <span>Documents</span>
+          <span>{copy.metrics.documents}</span>
         </div>
         <div>
           <strong>{totalChunks}</strong>
-          <span>Chunks</span>
+          <span>{copy.metrics.chunks}</span>
         </div>
         <div>
           <strong>{manualDocuments}</strong>
-          <span>Manual</span>
+          <span>{copy.metrics.manual}</span>
         </div>
         <div>
           <strong>{result?.latency_ms ?? latestAudit?.latency_ms ?? 0}ms</strong>
-          <span>Latency</span>
+          <span>{copy.metrics.latency}</span>
         </div>
       </section>
 
-      <section className="provider-bar" aria-label="Provider configuration">
+      <section className="provider-bar" aria-label={copy.provider.label}>
         <div>
-          <strong>Embedding</strong>
+          <strong>{copy.provider.embedding}</strong>
           <span>{config?.embedding_provider ?? 'local'}</span>
           <em>{config?.supported_embedding_providers.join(' / ') ?? 'local / openai / jina'}</em>
         </div>
         <div>
-          <strong>Answer</strong>
+          <strong>{copy.provider.answer}</strong>
           <span>{config?.chat_provider ?? 'fallback'}</span>
           <em>{config?.supported_chat_providers.join(' / ') ?? 'fallback / deepseek'}</em>
         </div>
         <div>
-          <strong>API</strong>
+          <strong>{copy.provider.api}</strong>
           <span>{config?.api_base_url ?? API_BASE_URL}</span>
-          <em>Docker local deployment</em>
+          <em>{copy.provider.apiNote}</em>
         </div>
       </section>
 
@@ -291,13 +513,13 @@ function App() {
         <div className="left-column">
           <aside className="panel documents-panel">
             <div className="panel-title">
-              <h2>Knowledge Sources</h2>
+              <h2>{copy.documents.title}</h2>
               <div className="button-row compact">
                 <button type="button" onClick={() => refresh().catch(() => undefined)}>
-                  Refresh
+                  {copy.documents.refresh}
                 </button>
                 <button type="button" onClick={resetDemo} disabled={mutating}>
-                  Reset
+                  {copy.documents.reset}
                 </button>
               </div>
             </div>
@@ -313,11 +535,11 @@ function App() {
                     {document.source_type === 'manual' ? (
                       <button
                         type="button"
-                        aria-label={`Delete ${document.title}`}
+                        aria-label={`${copy.documents.deleteLabel} ${document.title}`}
                         onClick={() => deleteDocument(document.id)}
                         disabled={mutating}
                       >
-                        Delete
+                        {copy.documents.delete}
                       </button>
                     ) : null}
                   </div>
@@ -328,52 +550,54 @@ function App() {
 
           <section className="panel ingest-panel">
             <div className="panel-title">
-              <h2>Ingest Document</h2>
-              <span>{selectedFileName ?? 'textarea or .md/.txt file'}</span>
+              <h2>{copy.ingest.title}</h2>
+              <span>{selectedFileName ?? copy.ingest.sourceHint}</span>
             </div>
             <div className="form-grid">
               <label className="full file-loader">
-                <span>Load File</span>
+                <span>{copy.ingest.loadFile}</span>
                 <input
                   type="file"
                   accept=".md,.txt,text/markdown,text/plain"
-                  onChange={(event) => loadFile(event.target.files?.[0]).catch((err) => {
-                    setError(err instanceof Error ? err.message : 'File load failed')
-                  })}
+                  onChange={(event) => {
+                    loadFile(event.target.files?.[0]).catch((err) => {
+                      setError(err instanceof Error ? err.message : copy.messages.fileLoadFailed)
+                    })
+                  }}
                 />
               </label>
               <label>
-                <span>Title</span>
+                <span>{copy.ingest.docTitle}</span>
                 <input value={ingestTitle} onChange={(event) => setIngestTitle(event.target.value)} />
               </label>
               <label>
-                <span>Language</span>
+                <span>{copy.ingest.language}</span>
                 <select
                   value={ingestLanguage}
                   onChange={(event) => setIngestLanguage(event.target.value)}
                 >
-                  <option value="en">English</option>
-                  <option value="zh">Chinese</option>
-                  <option value="mixed">Mixed</option>
+                  <option value="en">{copy.ingest.options.en}</option>
+                  <option value="zh">{copy.ingest.options.zh}</option>
+                  <option value="mixed">{copy.ingest.options.mixed}</option>
                 </select>
               </label>
               <label className="full">
-                <span>Source URI</span>
+                <span>{copy.ingest.sourceUri}</span>
                 <input
                   value={ingestSourceUri}
                   onChange={(event) => setIngestSourceUri(event.target.value)}
                 />
               </label>
               <label className="full">
-                <span>Content</span>
+                <span>{copy.ingest.content}</span>
                 <textarea
                   value={ingestContent}
                   onChange={(event) => setIngestContent(event.target.value)}
-                  aria-label="Document content"
+                  aria-label={copy.ingest.content}
                 />
               </label>
               <button type="button" className="primary wide" onClick={ingestDocument} disabled={mutating}>
-                {mutating ? 'Working...' : 'Ingest'}
+                {mutating ? copy.ingest.working : copy.ingest.ingest}
               </button>
             </div>
           </section>
@@ -381,11 +605,11 @@ function App() {
 
         <section className="panel query-panel">
           <div className="panel-title">
-            <h2>Ask With Citations</h2>
+            <h2>{copy.query.title}</h2>
             <span className="api-url">{API_BASE_URL}</span>
           </div>
           <div className="examples">
-            {EXAMPLE_QUESTIONS.map((example) => (
+            {copy.exampleQuestions.map((example) => (
               <button
                 key={example}
                 type="button"
@@ -402,11 +626,11 @@ function App() {
           <textarea
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            aria-label="Question"
+            aria-label={copy.query.questionLabel}
           />
           <div className="query-actions">
             <label>
-              <span>Top K</span>
+              <span>{copy.query.topK}</span>
               <input
                 type="number"
                 min="1"
@@ -416,7 +640,7 @@ function App() {
               />
             </label>
             <button type="button" className="primary" onClick={() => askQuestion()} disabled={loading}>
-              {loading ? 'Querying...' : 'Run Query'}
+              {loading ? copy.query.querying : copy.query.run}
             </button>
           </div>
           {result ? (
@@ -424,7 +648,9 @@ function App() {
               <div className="answer-meta">
                 <span>{result.latency_ms}ms</span>
                 <span>${result.estimated_cost_usd.toFixed(6)}</span>
-                <span>{result.citations.length} citations</span>
+                <span>
+                  {result.citations.length} {copy.query.citations}
+                </span>
               </div>
               <pre>{result.answer}</pre>
               <div className="citation-list">
@@ -440,8 +666,8 @@ function App() {
               </div>
               <div className="debug-panel">
                 <div className="debug-title">
-                  <h3>Retrieval Debug</h3>
-                  <span>chunk source and score</span>
+                  <h3>{copy.debug.title}</h3>
+                  <span>{copy.debug.subtitle}</span>
                 </div>
                 <div className="debug-table">
                   {result.citations.map((citation, index) => (
@@ -461,8 +687,10 @@ function App() {
 
       <section className="panel audit-panel">
         <div className="panel-title">
-          <h2>Audit Trail</h2>
-          <span>{auditLogs.length} recent records</span>
+          <h2>{copy.audit.title}</h2>
+          <span>
+            {auditLogs.length} {copy.audit.recent}
+          </span>
         </div>
         <div className="audit-table">
           {auditLogs.slice(0, 8).map((log) => (
@@ -479,11 +707,11 @@ function App() {
       <section className="info-grid">
         <article className="panel info-panel">
           <div className="panel-title">
-            <h2>Architecture</h2>
-            <span>local-first RAG path</span>
+            <h2>{copy.architecture.title}</h2>
+            <span>{copy.architecture.subtitle}</span>
           </div>
           <ol>
-            {ARCHITECTURE_STEPS.map((step) => (
+            {copy.architecture.steps.map((step) => (
               <li key={step}>{step}</li>
             ))}
           </ol>
@@ -491,11 +719,11 @@ function App() {
 
         <article className="panel info-panel">
           <div className="panel-title">
-            <h2>Testing Notes</h2>
-            <span>recording-ready checks</span>
+            <h2>{copy.testing.title}</h2>
+            <span>{copy.testing.subtitle}</span>
           </div>
           <ul>
-            {TEST_NOTES.map((note) => (
+            {copy.testing.notes.map((note) => (
               <li key={note}>{note}</li>
             ))}
           </ul>
