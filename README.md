@@ -4,6 +4,8 @@ Frontend demo for the Enterprise Context Layer backend.
 
 It now includes the core demo loop: view seeded knowledge, load a `.md` or `.txt` file, ingest a manual document, ask cited questions, inspect retrieval debug details, review audit logs, delete manual documents, and reset demo data.
 
+![Enterprise Context Layer dashboard](docs/assets/dashboard.png)
+
 ## Portfolio Signal
 
 This project is intentionally shaped as an interview-friendly AI full-stack demo:
@@ -36,7 +38,7 @@ flowchart LR
 
 ## Demo Checklist
 
-- Load a `.md` or `.txt` memo into the ingest form.
+- Load `docs/sample-remote-hiring-memo.md` or another `.md/.txt` memo into the ingest form.
 - Ingest the document and confirm it appears under Knowledge Sources.
 - Ask a question and inspect answer, citations, latency, cost, and Retrieval Debug.
 - Review the Audit Trail.
@@ -49,6 +51,12 @@ cd /Users/chenwencheng/codebase/ai-app/enterprise-context-web
 cp .env.example .env
 npm install
 npm run dev
+```
+
+Quality gate:
+
+```bash
+npm run check
 ```
 
 Open the Vite URL and make sure the backend is running with:
